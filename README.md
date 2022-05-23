@@ -47,6 +47,8 @@ The preprocessed directory `${MUSTC_ROOT}` should look like as follows:
 └── MUSTC_v1.0_en-de.tar.gz
 ```
 
+The sentencepiece model and vocabulary file for En-DE can be downloaded at: [ spm_unigram10000_st.model ](https://lf3-nlp-opensource.bytetos.com/obj/nlp-opensource/acl2022/mostt/spm_unigram10000_st.model), [ spm_unigram10000_st.txt ](https://lf3-nlp-opensource.bytetos.com/obj/nlp-opensource/acl2022/mostt/spm_unigram10000_st.txt), [ spm_unigram10000_st.vocab ](https://lf3-nlp-opensource.bytetos.com/obj/nlp-opensource/acl2022/mostt/spm_unigram10000_st.vocab). The sentencepiece model for generating the MSM's labels can be downloaded at: [ spm_unigram5000_asr.model ](https://lf3-nlp-opensource.bytetos.com/obj/nlp-opensource/acl2022/mostt/spm_unigram5000_asr.model), which should be placed to `/path/spm_unigram5000_asr.model`
+
 The generated `config_wave.yaml` should look like as follows:
 
 ```
@@ -159,8 +161,8 @@ Note that the offline models need to be converted to support streaming translati
 + Prefix-decision 
 ```shell script
 lagging=5
-fixed-pre-decision-ratio=7
-simuleval --agent fairseq/examples/speech_to_text/simultaneous_translation/agents/fairseq_simul_st_agent_wav2vec.py \
+fixed_pre_decision_ratio=7
+simuleval --agent mosst/examples/speech_to_text/simultaneous_translation/agents/fairseq_simul_st_agent_wav2vec.py \
   --source /path/data/tst-COMMON.wavurl \
   --target /path/data/tst-COMMON.${LANG} \
   --data-bin /path/data/en-${LANG}/ \
@@ -168,17 +170,15 @@ simuleval --agent fairseq/examples/speech_to_text/simultaneous_translation/agent
   --model-path /path/${LANG}/finetune/checkpoint.pt \
   --output /path/${LANG}/finetune/simuleval/ \
   --waitk-lagging ${lagging} \
-  --fixed-pre-decision-ratio ${fixed-pre-decision-ratio} \
+  --fixed-pre-decision-ratio ${fixed_pre_decision_ratio} \
   --scores \
-  --port 1234 \
-  --prefix-size 1 \
-  --lang de
+  --port 1234
 ```
 
 + Dynamic-decision
 
 ```shell script
-simuleval --agent fairseq/examples/speech_to_text/simultaneous_translation/agents/fairseq_simul_st_agent_wav2vec_cif.py \
+simuleval --agent mosst/examples/speech_to_text/simultaneous_translation/agents/fairseq_simul_st_agent_wav2vec_cif.py \
   --source /path/data/tst-COMMON.wavurl \
   --target /path/data/tst-COMMON.${LANG} \
   --data-bin /path/data/en-${LANG}/ \
@@ -187,9 +187,7 @@ simuleval --agent fairseq/examples/speech_to_text/simultaneous_translation/agent
   --output /path/${LANG}/finetune/simuleval/ \
   --scores \
   --max-source-positions 3200000 \
-  --port 1234 \
-  --prefix-size 1 \
-  --lang de
+  --port 1234
 ```
 
 ## Citation
