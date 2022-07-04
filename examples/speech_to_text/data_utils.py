@@ -175,6 +175,33 @@ def gen_config_yaml(
     writer.flush()
 
 
+def gen_config_yaml_raw(
+        manifest_root: Path,
+        spm_filename: str,
+        yaml_filename: str = "config.yaml",
+        prepend_tgt_lang_tag: bool = False,
+        audio_root: str = "",
+):
+    manifest_root = manifest_root.absolute()
+    writer = S2TDataConfigWriter(manifest_root / yaml_filename)
+    if spm_filename is not None:
+        writer.set_vocab_filename(spm_filename.replace(".model", ".txt"))
+    writer.set_input_channels(1)
+    if spm_filename is not None:
+        writer.set_bpe_tokenizer(
+            {
+                "bpe": "sentencepiece",
+                "sentencepiece_model": (manifest_root / spm_filename).as_posix(),
+            }
+        )
+    if prepend_tgt_lang_tag:
+        writer.set_prepend_tgt_lang_tag(True)
+
+    if len(audio_root) > 0:
+        writer.set_audio_root(audio_root)
+    writer.flush()
+
+
 def load_df_from_tsv(path: Union[str, Path]):
     _path = path if isinstance(path, str) else path.as_posix()
     return pd.read_csv(

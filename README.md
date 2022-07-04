@@ -47,7 +47,11 @@ The preprocessed directory `${MUSTC_ROOT}` should look like as follows:
 └── MUSTC_v1.0_en-de.tar.gz
 ```
 
-The sentencepiece model and vocabulary file for En-DE can be downloaded at: [ spm_unigram10000_st.model ](https://lf3-nlp-opensource.bytetos.com/obj/nlp-opensource/acl2022/mostt/spm_unigram10000_st.model), [ spm_unigram10000_st.txt ](https://lf3-nlp-opensource.bytetos.com/obj/nlp-opensource/acl2022/mostt/spm_unigram10000_st.txt), [ spm_unigram10000_st.vocab ](https://lf3-nlp-opensource.bytetos.com/obj/nlp-opensource/acl2022/mostt/spm_unigram10000_st.vocab). The sentencepiece model for generating the MSM's labels can be downloaded at: [ spm_unigram5000_asr.model ](https://lf3-nlp-opensource.bytetos.com/obj/nlp-opensource/acl2022/mostt/spm_unigram5000_asr.model), which should be placed to `/path/spm_unigram5000_asr.model`
+The sentencepiece model and vocabulary file for En-DE can be downloaded at: [ spm_unigram10000_st.model ](https://lf3-nlp-opensource.bytetos.com/obj/nlp-opensource/acl2022/mostt/spm_unigram10000_st.model), [ spm_unigram10000_st.txt ](https://lf3-nlp-opensource.bytetos.com/obj/nlp-opensource/acl2022/mostt/spm_unigram10000_st.txt), [ spm_unigram10000_st.vocab ](https://lf3-nlp-opensource.bytetos.com/obj/nlp-opensource/acl2022/mostt/spm_unigram10000_st.vocab). 
+
+The sentencepiece model and vocabulary file for En-Fr can be downloaded at: [ spm_unigram10000_st.model ](https://lf3-nlp-opensource.bytetos.com/obj/nlp-opensource/acl2022/mostt/fr/spm_unigram10000_st.model), [ spm_unigram10000_st.txt ](https://lf3-nlp-opensource.bytetos.com/obj/nlp-opensource/acl2022/mostt/fr/spm_unigram10000_st.txt), [ spm_unigram10000_st.vocab ](https://lf3-nlp-opensource.bytetos.com/obj/nlp-opensource/acl2022/mostt/fr/spm_unigram10000_st.vocab). 
+
+The sentencepiece model for generating the MSM's labels can be downloaded at: [ spm_unigram5000_asr.model ](https://lf3-nlp-opensource.bytetos.com/obj/nlp-opensource/acl2022/mostt/spm_unigram5000_asr.model), which should be placed to `/path/spm_unigram5000_asr.model`
 
 The generated `config_wave.yaml` should look like as follows:
 
@@ -70,15 +74,16 @@ prepend_tgt_lang_tag: true
 ```shell script
 fairseq-train ${MUSTC_ROOT} \
   --config-yaml config_wave.yaml \
-  --train-subset train_wavecif_joint \
-  --valid-subset dev_wavecif_joint \
+  --train-subset train_wave_joint \
+  --valid-subset dev_wave_joint \
   --save-dir /path/${LANG}/pretrain \
   --max-tokens 3200000  \
   --update-freq 1 \
   --max-update 3200000 \
-  --task speech_to_text_wav2vec_cif \
-  --criterion qua_ce_acc_v2 \
-  --arch convtransformer_espnet_wav2vec_cif \
+  --task speech_to_text_wav2vec \
+  --criterion label_smoothed_cross_entropy \
+  --report-accuracy \
+  --arch convtransformer_espnet_wav2vec \
   --w2v2-model-path /path/wav2vec_small.pt \
   --optimizer adam \
   --lr 0.0001 \
@@ -95,8 +100,22 @@ fairseq-train ${MUSTC_ROOT} \
   --skip-invalid-size-inputs-valid-test \
   --dropout 0.0 --activation-dropout 0.1 --attention-dropout 0.1 \
   --encoder-layers 8 \
-  --ignore-prefix-size 1 --log-interval 20  --fp16 \
-  --load-pretrained-encoder-from ${pretrain_ckpt} --load-pretrained-decoder-from ${pretrain_ckpt} 
+  --empty-cache-freq 100 \
+  --ignore-prefix-size 1 \
+  --fp16
+```
+
+```
+id      audio   n_frames        tgt_text        speaker tgt_lang
+ted_878_142     /xxx/en-de/data/train/wav/ted_878.wav:1216800:161760      161760  But we too rarely articulate and defend and argue about those big moral questions in our politics.   spk.878 en
+ted_1776_86     /xxx/en-de/data/train/wav/ted_1776.wav:8300639:39040      39040   Ich bin also so etwas wie ein Humoranalyst.  spk.1776        de
+ted_1312_6      /xxx/en-de/data/train/wav/ted_1312.wav:1980000:31200      31200   And I just finished a couple of months ago.  spk.1312        en
+ted_2889_24     /xxx/en-de/data/train/wav/ted_2889.wav:3703360:139840     139840  One reason is the stigma, with 63 percent of black Americans mistaking depression for a weakness.    spk.2889        en
+ted_445_163     /xxx/en-de/data/train/wav/ted_445.wav:14420960:88160      88160   They all have the same virus, but they're different enough that there's reason to believe that they've been independently acquired.  spk.445 en
+ted_424_60      /xxx/en-de/data/train/wav/ted_424.wav:9106080:83840       83840   Lem Sen: "I would've made this money, too, but I spent all this time looking for the American man who stole my recipe.       spk.424 en
+ted_1489_67     /xxx/en-de/data/train/wav/ted_1489.wav:12616000:39519     39519   India has the youngest growing population in the world.      spk.1489        en
+ted_1258_76     /xxx/en-de/data/train/wav/ted_1258.wav:7939040:18400      18400   I spend a lot of time on the road.   spk.1258        en
+ted_1513_11     /xxx/en-de/data/train/wav/ted_1513.wav:2869919:28000      28000   It's active in the Gulf of Guinea.   spk.1513        en
 ```
 
 We use the pre-trained [ Wav2vec 2.0 ](https://dl.fbaipublicfiles.com/fairseq/wav2vec/wav2vec_small.pt) as the acoustic encoder.
