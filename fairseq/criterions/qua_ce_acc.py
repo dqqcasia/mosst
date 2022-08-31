@@ -63,7 +63,7 @@ class QuantityCrossEntropyWithAccCriterion(LabelSmoothedCrossEntropyWithAccCrite
     def compute_loss(self, model, net_output, sample, reduction, log_probs):
         # number loss
         _number = net_output["num_output"]
-        number = sample["target_lengths"].float()
+        number = sample["net_input"]["target_lengths"].float()
         diff = torch.sqrt(torch.pow(_number - number, 2) + 1e-6).sum()
         qua_loss = diff
         # alphas_pen
@@ -243,7 +243,7 @@ class QuantityCrossEntropyWithAccCriterionV2(LabelSmoothedCrossEntropyWithAccCri
     def compute_loss(self, model, net_output, sample, reduction, log_probs):
         # number loss
         _number = net_output["num_output"]
-        number = sample["target_lengths"].float()
+        number = sample["net_input"]["target_lengths"].float()
         diff = torch.sqrt(torch.pow(_number - number, 2) + 1e-6).sum()
         qua_loss = diff
         # alphas_pen
@@ -433,7 +433,7 @@ class NAR_QUA_CTC_CE(QuantityCrossEntropyWithAccCriterionV2):
         pad_id = self.task.target_dictionary.pad()
         # number loss
         _number = net_output["num_output"]
-        number = sample["target_lengths"].float()
+        number = sample["net_input"]["target_lengths"].float()
         diff = torch.sqrt(torch.pow(_number - number, 2) + 1e-12).sum()
         qua_loss = diff
         lprobs_ctc, lprobs = model.get_normalized_probs(net_output, retrun_ctc=True, log_probs=log_probs)
@@ -607,7 +607,7 @@ class QUA_CTC_CE(QuantityCrossEntropyWithAccCriterionV2):
 
         # number loss
         _number = net_output["num_output"]
-        number = sample["target_lengths"].float()
+        number = sample["net_input"]["target_lengths"].float()
         diff = torch.sqrt(torch.pow(_number - number, 2) + 1e-12).sum()
         qua_loss = diff
 
